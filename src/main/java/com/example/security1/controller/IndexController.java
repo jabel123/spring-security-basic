@@ -1,12 +1,22 @@
 package com.example.security1.controller;
 
+import com.example.security1.model.User;
+import com.example.security1.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller // View 를 리턴하겠다!
 public class IndexController
 {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     // localhost:8080
     @GetMapping({"", "/"})
     public String index()
@@ -35,16 +45,28 @@ public class IndexController
     }
 
     // SecurityConfig 이후 작동을 안하게 된다!(안낚아 채지게 되는거임)
-    @GetMapping("/login")
-    public @ResponseBody String login()
+    @GetMapping("/loginForm")
+    public String login()
     {
-        return "login";
+        return "loginForm";
     }
 
-    @GetMapping("/join")
-    public @ResponseBody String join()
+    @GetMapping("/joinForm")
+    public String join()
     {
-        return "join";
+        return "joinForm";
+    }
+
+    @PostMapping("/join")
+    public @ResponseBody String join(User user)
+    {
+        user.setRole("ROLE_USER");
+        String rawPassword = user.getPassword();
+        String encPassword = passwordEncoder.encode(rawPassword);
+        user.setPassword(encPassword);
+        userRepository.save(user); // 회원가입 잘됨. 비밀번호 : 1234 => 시큐리티로 로그인을 할 수 없음. 이유는 패스워드가 암호화가 안되었기 떄문이다.
+
+        return "redirect:/login";
     }
 
     @GetMapping("/joinProc")

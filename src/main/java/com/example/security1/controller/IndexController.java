@@ -3,6 +3,8 @@ package com.example.security1.controller;
 import com.example.security1.model.User;
 import com.example.security1.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +60,7 @@ public class IndexController
     }
 
     @PostMapping("/join")
-    public @ResponseBody String join(User user)
+    public String join(User user)
     {
         user.setRole("ROLE_USER");
         String rawPassword = user.getPassword();
@@ -73,5 +75,19 @@ public class IndexController
     public @ResponseBody String joinProc()
     {
         return "회원가입 완료됨!";
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/info")
+    public @ResponseBody String info()
+    {
+        return "개인정보";
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    @GetMapping("/data")
+    public @ResponseBody String data()
+    {
+        return "데이터";
     }
 }

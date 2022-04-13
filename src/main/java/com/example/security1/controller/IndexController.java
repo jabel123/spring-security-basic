@@ -19,6 +19,8 @@ public class IndexController
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+
+
     // localhost:8080
     @GetMapping({"", "/"})
     public String index()
